@@ -41,7 +41,7 @@ power = powerOfTtest(n, m, mu, nu, sd)
 points(nu, power, col = 'green')
 
 # compute power function with parametrs : n = m = 30, mu=180 and sd=15.
-n = m = 100; mu = 180; sd = 15
+n = m = 30; mu = 180; sd = 15
 power = powerOfTtest(n, m, mu, nu, sd)
 points(nu, power, col = 'blue')
 ```
