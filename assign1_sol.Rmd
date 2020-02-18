@@ -1,0 +1,239 @@
+---
+title: "Assignment 1"
+author: "Chang Liu"
+date: "2020/2/6"
+output: pdf_document
+---
+```{r echo=FALSE, results='hide',message=FALSE}
+set.seed(1234)
+```
+## Exercise 1
+First, I construct a simple function that could return the power of t-test with given parameters (n,m,mu,nu,sd). 
+```{r}
+powerOfTtest <- function(n, m, mu, nu, sd)
+{
+  B = 1000; p = numeric(B); power = numeric(length(nu))
+  for (i in 1:length(nu))
+  {
+    for (b in 1:B)
+    {
+      x = rnorm(n, mu,sd); y = rnorm(m, nu[i],sd)
+      p[b] = t.test(x,y,var.equal=TRUE)[[3]]
+    }
+    power[i] = mean(p<0.05)
+  }
+  power
+}
+```
+
+**a)** & **b)** &**c)**
+Using the above function, I can now calculate the power of the t-test with  given parameters. Then I make a plot for all sets of parameters with red, green and blue color respectively.
+```{r}
+nu = seq(175,185,by=0.25)
+# compute and plot power function with parametrs : n = m = 30, mu=180 and sd=5
+n = m = 30; mu = 180; sd = 5
+power = powerOfTtest(n, m, mu, nu, sd)
+plot(nu, power, col = 'red')
+
+# compute and plot power function with parametrs : n = m = 100, mu=180 and sd=5.
+n = m = 100; mu = 180; sd = 5
+power = powerOfTtest(n, m, mu, nu, sd)
+points(nu, power, col = 'green')
+
+# compute power function with parametrs : n = m = 30, mu=180 and sd=15.
+n = m = 100; mu = 180; sd = 15
+power = powerOfTtest(n, m, mu, nu, sd)
+points(nu, power, col = 'blue')
+```
+
+**d)**
+First, with fixed n,m,sd and mu. As the second sample's mean of the sampling distribution (nu) goes closer to mu, the power of p-value could be rather low which suggests t-test tends to NOT rejects the null hypothesis and gives the right result. Second, comparing plot from problem a and b, b's up-side-down bell-shaped plot is thinner than a's plot, indicating as sample size increase t-test becomes more strict, t-test will NOT reject null hypothesis only when two means fairly close to each other. The third conclusion comes from problem c, when standard deviation becomes larger, its plot became less smooth and t-test's performance became unstable. Because higher sample sizes yield higher power, increasing sample size may solve this problem.
+
+## Exercise 2
+**a)** 
+To investigate the normality for all three data sets, I choose to use Shapiro-Wilk normality test with an alpha level of 0.05. The null-hypothesis of this test is that the population is normally distributed.
+```{r}
+light = 7.442 / ((scan('light.txt', quiet=TRUE) / 1000 + 24.8) / 10^6)
+light1879 = scan('light1879.txt', quiet=TRUE) + 299000
+light1882 = scan('light1882.txt', quiet=TRUE) + 299000
+par(mfrow=c(1,3))
+shapiro.test(light)[[2]]
+shapiro.test(light1879)[[2]]
+shapiro.test(light1882)[[2]]
+```
+After computing all three data sets' p-value, the data from light1879 and light1882 have a p-value greater than 0.05. So I would deduce 'light1879' and 'light1882' is normally distributed, the data set 'light' is not normally distributed.
+
+**b)**
+We can use t-distribution to calculate distribution confidence intervals even the distribution is not a normal distribution. t.test in R would give me confidence intervals directly.
+```{r}
+lightCi = t.test(light)[[4]]
+light1879Ci = t.test(light1879)[[4]]
+light1882Ci = t.test(light1882)[[4]]
+c(lightCi[1], lightCi[2])
+c(light1879Ci[1], light1879Ci[2])
+c(light1882Ci[1], light1882Ci[2])
+```
+
+**c)** 
+t-test will perform less accurately when the distribution is not normal, so I choose Wilcoxon signed rank test to find the first sample's p-value.
+```{r warning=FALSE}
+lightSpeed = 299792.458
+p = wilcox.test(light,mu=lightSpeed)[[3]]
+p1879 = t.test(light1879, mu=lightSpeed)[[3]]
+p1882 = t.test(light1882,mu=lightSpeed)[[3]]
+p; p1879; p1882;
+```
+As reult, only light1882's p-vlaue (0.1189198) > 0.05, which makes it most accurate sample.
+
+## Exercise 3
+**a)**
+```{r}
+telephoneBills = read.table('telephone.txt', header=TRUE)
+telephone =  telephoneBills[telephoneBills$Bills!=0, ]
+hist(telephone, xlab='First Month Bills', ylab='Money', main='Histogram of New Subscribers')
+```
+I think best plot to represent the distribution of subscribers is histogram.
+The strategy that the manager should adopt is to increase the preferential activities in the price range of 30-70 to promote low consumption users to increase consumption, and ultimately increase users in this price range.
+There is one inconsistencies in the data. It contains zero value which is inappropriate since the survey should target customers who have already spent. Hence zero-cost subscribers shouldn't be included.
+
+**b)**
+I make a sequence between 0.01 and 0.1, and use bootstrap-test to test every single one of them to evaluate wether data fits exponential distribution.
+```{r}
+lambdas=seq(0.01, 0.1, by=0.01)
+B=1000
+t=median(telephone)
+n=length(telephone)
+p=numeric(length(lambdas))
+for (i in 1:length(lambdas)) {
+  tstar=numeric(B)
+  for (b in 1:B) {
+    xstar=rexp(n, lambdas[i])
+    tstar[b]=median(xstar)
+  }
+  pl=sum(tstar<t)/B
+  pr=sum(tstar>t)/B
+  p[i]=2*min(pl,pr)
+}
+p
+```
+As result, when lambda equals 0.02, p-value = 0.074 > 0.05, so the data fit Exp(0.02)
+
+**c)**
+To construct a 95% bootstrap confidence interval, first I should do bootstrap simulation to generate 1000 groups $(X_{1}^{*}, \ldots, X_{N}^{*})$ and compute $T_{i}^{*}=median\left(X_{1}^{*}, \ldots, X_{N}^{*}\right)$. With the formula for the bootstrap confidence interval with confidence $1-2\alpha$: $\left[2 T-T_{(1-\alpha)}^{*}, 2 T-T_{(\alpha)}^{*}\right]$, I can now construct a 95% bootstrap confidence interval.
+```{r}
+B = 1000
+medians = numeric(B)
+for (b in 1:B) {
+  xstar=sample(telephone, size=length(telephone), replace=TRUE)
+  medians[b] = median(xstar)
+}
+Tstar25 = quantile(medians, 0.025)
+Tstar975 = quantile(medians, 0.975)
+T1 = median(telephone)
+c(2*T1-Tstar975,2*T1-Tstar25)
+```
+
+**d)**
+For an exponential distribution, we have $E[X]=\frac{1}{\lambda}$. When applying central limit theorem to an exponential distribution, we could expect ${\hat\lambda} = \frac{1}{\bar{X}}$. While sim
+```{r}
+B = 1000
+sample_means = numeric(B)
+for (b in 1:B) {
+  xstar = sample(telephone, size=length(telephone), replace=TRUE)
+  sample_means[b] = mean(xstar)
+}
+central = mean(sample_means)
+lambda = 1 / central
+lambda
+```
+For a exponential distribution with $\lambda$ = 0.022, 
+
+
+**e)**
+I choose sign test to verify wheter the median is bigger or equal to 40, and wheter the probability less than 10 is at most 25%.
+```{r}
+binom.test(sum(telephone>=40),length(telephone),p=0.5)[[3]]
+binom.test(sum(telephone<10),length(telephone),p=0.25, alternative='greater')[[3]]
+```
+the p-value of first test 0.07091956 > 0.05. Conclusion: H0 is not rejected, median bill is bigger or equal to 40 euro.
+the p-value of first test 0.7715 > 0.05. Conclusion: H0 is not rejected, the fraction of bills less than 10 euro is at most 25%.
+
+## Exercise 4
+First, I run Shapiro-Wilk normality test to check the normlity of the dataset.
+```{r}
+run = read.table('run.txt')
+shapiro.test(run$before)[[2]]
+shapiro.test(run$after)[[2]]
+```
+As a result, the dataset shows its normality.
+**a)**
+```{r}
+cor.test(run$before, run$after)
+```
+I could use Pearon's to test whether two vector are correlated, and p-value = 0.00078. Conclusion: there is significant correlation, given dataset's normality.
+
+**b)**
+For lemo, I construct null hypothesis: $H_{0}:H_{before} = H_{after}$, and alternative hypothesis: $H_{before} \neq H_{after}$.
+```{r}
+lemo = run[run$drink=='lemo', ]
+t.test(lemo$before, lemo$after, paired = TRUE)[[3]]
+```
+Use t.test I can get p-value = 0.4373423 > 0.05, Conclusion: can not reject $H_{0}$, two data set are not different.
+```{r}
+energy = run[run$drink=='energy', ]
+t.test(energy$before, energy$after, paired = TRUE)[[3]]
+```
+Use t.test I can get p-value = 0.1263962 > 0.05, Conclusion: can not reject $H_{0}$, two data set are not different.
+
+**c)**
+I choose permutation test and $T_{i}^{*}=mean(X^{*}-Y^{*})$ to test whether these time
+differences are effected by the type of drink.
+```{r}
+lemo$difference = lemo$before - lemo$after
+energy$difference = energy$before - energy$after
+mystat=function(x,y) {mean(x-y)}
+B=1000
+tstar=numeric(B)
+for (i in 1:B) {
+  adiffstar=t(apply(cbind(lemo$difference,energy$difference),1,sample))
+  tstar[i]=mystat(adiffstar[,1],adiffstar[,2])
+}
+myt=mystat(lemo$difference,energy$difference)
+pl=sum(tstar<myt)/B
+pr=sum(tstar>myt)/B
+p=2*min(pl,pr)
+p
+```
+p-value = 0.188 > 0.05, hence the is no difference between the two types of drinks.
+
+## Exercise 5
+**a)**
+Because paired t-test compares same study subjects at 2 different times, so the data is not paired.
+```{r}
+meatmeal = chickwts[chickwts$feed == 'meatmeal', ]$weight
+sunflower = chickwts[chickwts$feed == 'sunflower', ]$weight
+t.test(meatmeal, sunflower)[[3]]
+wilcox.test(meatmeal, sunflower)[[3]]
+ks.test(meatmeal, sunflower)[[2]]
+```
+**b)**
+```{r}
+chickwtsaov=lm(weight~feed,data=chickwts)
+anova(chickwtsaov)[[5]][1]
+summary(chickwtsaov)
+```
+p-value=5.93642e-10 < 0.05, Conclusion: reject $H_{0}$, there is difference between each group.
+The summary of ANOVA shows estimated chick weights for each feed supplements are 323.583(casein), -163.383+323.583=160.2(horsebean), 218.75(linseed), 276.909(meatmeal), 246.428(soybean) and 328.916(sunflower). So the sunflower is the best feed supplement.
+
+**c)**
+```{r}
+X <- split(chickwts$weight, chickwts$feed)
+boxplot(X)
+```
+I choose boxplot to check the ANOVA model assumptions.
+
+**d)**
+```{r}
+attach(chickwts)
+kruskal.test(weight,feed)
+```
