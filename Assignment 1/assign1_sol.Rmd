@@ -134,20 +134,26 @@ c(2*T1-Tstar975,2*T1-Tstar25)
 ```
 
 **d)**
-For an exponential distribution, we have $E[X]=\frac{1}{\lambda}$. When applying central limit theorem to an exponential distribution, we could expect ${\hat\lambda} = \frac{1}{\bar{X}}$. While sim
+For an exponential distribution, we have $E[X]=\frac{1}{\lambda}$. When applying bootstrap to simulate central limit theorem to an exponential distribution, we could expect ${\hat\lambda} = \frac{1}{\bar{X}}$.
 ```{r}
 B = 1000
 sample_means = numeric(B)
+medians = numeric(B)
 for (b in 1:B) {
   xstar = sample(telephone, size=length(telephone), replace=TRUE)
   sample_means[b] = mean(xstar)
+  medians[b] = median(xstar)
 }
+
 central = mean(sample_means)
 lambda = 1 / central
 lambda
+Tstar25 = quantile(medians, 0.025)
+Tstar975 = quantile(medians, 0.975)
+T1 = median(telephone)
+c(2*T1-Tstar975,2*T1-Tstar25)
 ```
-For a exponential distribution with $\lambda$ = 0.022, 
-
+So we have $\lambda$ = 0.022, and CI for population median is [16.12500, 36.56688].
 
 **e)**
 I choose sign test to verify wheter the median is bigger or equal to 40, and wheter the probability less than 10 is at most 25%.
