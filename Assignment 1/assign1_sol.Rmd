@@ -165,34 +165,75 @@ the p-value of first test 0.07091956 > 0.05. Conclusion: H0 is not rejected, med
 the p-value of first test 0.7715 > 0.05. Conclusion: H0 is not rejected, the fraction of bills less than 10 euro is at most 25%.
 
 ## Exercise 4
-First, I run Shapiro-Wilk normality test to check the normlity of the dataset.
+**a)**
 ```{r}
 run = read.table('run.txt')
+cor.test(run$before, run$after)
+
+qqnorm(run$before)
+qqnorm(run$after)
 shapiro.test(run$before)[[2]]
 shapiro.test(run$after)[[2]]
 ```
-As a result, the dataset shows its normality.
-**a)**
-```{r}
-cor.test(run$before, run$after)
-```
-I could use Pearon's to test whether two vector are correlated, and p-value = 0.00078. Conclusion: there is significant correlation, given dataset's normality.
+For both two columns' data are nomally distributed, we could use Pearon's to test whether run times before drink and after are correlated, and finally we got p-value = 0.00078, which is much smaller than 0.05.
+
+Moreover, we ran Shapiro-Wilk normality test and drew QQ-Plot to check both the "before runing data" and the "after running data"'s normlity.
+
+As both data Shapiro test p-value results are bigger than 0.05 and QQ-Plots' dots are both nearly in a line, both tow columns' data are normally distributed.
+
+Conclusion: there is significant correlation, given dataset's normality.
 
 **b)**
-For lemo, I construct null hypothesis: $H_{0}:H_{before} = H_{after}$, and alternative hypothesis: $H_{before} \neq H_{after}$.
+For difference in speed test we will use t-tset in both softdrink and the energy drink conditions. The test  null hypothesis: $H_{0}:H_{before} = H_{after}$, and alternative hypothesis: $H_{before} \neq H_{after}$.
 ```{r}
 lemo = run[run$drink=='lemo', ]
 t.test(lemo$before, lemo$after, paired = TRUE)[[3]]
+qqnorm(lemo$after - lemo$before)
 ```
-Use t.test I can get p-value = 0.4373423 > 0.05, Conclusion: can not reject $H_{0}$, two data set are not different.
+
 ```{r}
 energy = run[run$drink=='energy', ]
 t.test(energy$before, energy$after, paired = TRUE)[[3]]
+qqnorm(energy$after - energy$before)
 ```
-Use t.test I can get p-value = 0.1263962 > 0.05, Conclusion: can not reject $H_{0}$, two data set are not different.
+From the paired t-test's requirement, difference between run before and run after should be normally distributed, however from the QQ-plot it shows that neither soft drink' nor energy drink's differences are normally distributed. So we will try to use permutation tests, which normality of data differencee is not required.
+```{r}
+ mystat=function(x,y) {mean(x-y)} 
+B=1000
+tstar=numeric(B)
+for (i in 1:B) 
+{ 
+ lemonstar=t(apply(cbind(lemo$before,lemo$after),1,sample))
+ tstar[i]=mystat(lemonstar[,1],lemonstar[,2]) 
+}
+ myt=mystat(lemo$before,lemo$after)
+ pl=sum(tstar<myt)/B 
+ pr=sum(tstar>myt)/B
+ p=2*min(pl,pr)
+ p
+```
+```{r}
+mystat=function(x,y) {mean(x-y)} 
+B=1000
+tstar=numeric(B)
+for (i in 1:B) 
+{ 
+ lemonstar=t(apply(cbind(energy$before,energy$after),1,sample))
+ tstar[i]=mystat(lemonstar[,1],lemonstar[,2]) 
+}
+ myt=mystat(energy$before,energy$after)
+ pl=sum(tstar<myt)/B 
+ pr=sum(tstar>myt)/B
+ p=2*min(pl,pr)
+ p
+```
+
+Both two permutation tests results (softdrink: 0.434 and energy: 0.136) are bigger than 0.05, which means there are no big speed difference before drink and and after, no matter we test on which drink.
+
+A more interesing outcome is t.test of softdrink's p-value = 0.4373423 > 0.05 and t.test of energy's p-value = 0.1263962 > 0.05, which means t-test results also show no big speed difference before drink and and after, both in softdrink condition and energy drink condition.
 
 **c)**
-I choose permutation test and $T_{i}^{*}=mean(X^{*}-Y^{*})$ to test whether these time
+We chose permutation test and $T_{i}^{*}=mean(X^{*}-Y^{*})$ to test whether these time
 differences are effected by the type of drink.
 ```{r}
 lemo$difference = lemo$before - lemo$after
@@ -214,29 +255,49 @@ p-value = 0.188 > 0.05, hence the is no difference between the two types of drin
 
 ## Exercise 5
 **a)**
-Because paired t-test compares same study subjects at 2 different times, so the data is not paired.
 ```{r}
 meatmeal = chickwts[chickwts$feed == 'meatmeal', ]$weight
 sunflower = chickwts[chickwts$feed == 'sunflower', ]$weight
 t.test(meatmeal, sunflower)[[3]]
 wilcox.test(meatmeal, sunflower)[[3]]
 ks.test(meatmeal, sunflower)[[2]]
+
+qqnorm(meatmeal)
+qqnorm(sunflower)
 ```
+For paired t-test argues that the two outcomes are measured on the same experimental unit, but it is not in this case, so the data is not paired.
+
+After we ran the tests, we got t-test reulst: 0.04441462, Mann-Whitney test result: 0.06881704, Kolmogorov-Smirnov test result: 0.108496. 
+
+From, t-test result, we can assume that meatmeal condition and sunflower condition has great difference of mean weight, but this assumption is not correct. This is becuase from QQ-plot of sunflower we can find that the data is not normally distributed.
+
+Both Mann-Whitney test and Kolmogorov-Smirnov test show that there are no big difference between meatmeal condition and sunflower condition.
+
+But why MW got bigger p-value than KS's p-value?The KS test is sensitive to any differences in the two distributions. Substantial differences in shape, spread or median will result in a small P value. In contrast, the MW test is mostly sensitive to changes in the median. This means in this question we'd better take MW's p-value.
+
 **b)**
 ```{r}
 chickwtsaov=lm(weight~feed,data=chickwts)
 anova(chickwtsaov)[[5]][1]
 summary(chickwtsaov)
 ```
-p-value=5.93642e-10 < 0.05, Conclusion: reject $H_{0}$, there is difference between each group.
-The summary of ANOVA shows estimated chick weights for each feed supplements are 323.583(casein), -163.383+323.583=160.2(horsebean), 218.75(linseed), 276.909(meatmeal), 246.428(soybean) and 328.916(sunflower). So the sunflower is the best feed supplement.
+After ran the script, we got one-way ANOVA's p-value=5.93642e-10 < 0.05, so we can reach a conclusion that there do have difference between each group.
+
+The summary of ANOVA shows estimated chick weights for each feed supplements are 323.583(casein), -163.383+323.583=160.2(horsebean), 218.75(linseed), 276.909(meatmeal), 246.428(soybean) and 328.916(sunflower). 
+
+In conclusion sunflower is the best feed supplement.
+```{r}
+par(mfrow=c(1,1)); qqnorm(residuals(chickwtsaov))
+```
+Finally we need to check the assumption of normality of the populations. We used residuals data to draw QQ-plots, and all data are in a line, which is normality.
 
 **c)**
 ```{r}
 X <- split(chickwts$weight, chickwts$feed)
 boxplot(X)
+stripchart(X,vertical=TRUE)
 ```
-I choose boxplot to check the ANOVA model assumptions.
+I choose boxplot and strip to check the ANOVA model assumptions. In boxplot graph both casein and sunflower condition got the highest middian. From the strip chart we found that casein condition distributed more widely, in contranst sunflower condition's data is more concentrated. These mean out conclusion in b) is correct.
 
 **d)**
 ```{r}
