@@ -100,7 +100,7 @@ The strategy that the manager should adopt is to increase the preferential activ
 There is one inconsistency in the data. It contains zero values, which is inappropriate since the survey should only target customers who have already spent money on their services. Hence zero-cost subscribers shouldn't be included.
 
 **b)**
-With lambda in the range between 0.01 and 0.1, we used a bootstrap-test to test every single one of them to evaluate whether thedata fits an exponential distribution.
+With lambda in the range between 0.01 and 0.1, we construct a sequence consist of 20 elements. And we use bootstrap-test to test every single one of them to evaluate whether the data fit an exponential distribution.
 ```{r}
 lambdas=seq(0.01, 0.1, by=0.005)
 B=1000
@@ -147,7 +147,6 @@ for (b in 1:B) {
   sample_means[b] = mean(xstar)
   medians[b] = median(xstar)
 }
-
 central = mean(sample_means)
 lambda = 1 / central
 lambda
@@ -156,7 +155,8 @@ Tstar975 = quantile(medians, 0.975)
 T1 = median(telephone)
 c(2*T1-Tstar975,2*T1-Tstar25)
 ```
-So we have $\lambda$ = 0.022, and CI for population median is [16.12500, 36.56688].
+Finally we got $\lambda$ = 0.022, and CI for population median is [17.88550, 36.71025].
+In conlusion the $\lambda$ of c) and d) are quite same(0.025 vs 0.022), and CI c) and d) are nearly the same.
 
 **e)**
 We have chosen a sign test to verify wheter the median is bigger or equal to 40, and wheter the probability less than 10 is at most 25%.
@@ -164,7 +164,7 @@ We have chosen a sign test to verify wheter the median is bigger or equal to 40,
 binom.test(sum(telephone>=40),length(telephone),p=0.5)[[3]]
 binom.test(sum(telephone<10),length(telephone),p=0.25, alternative='greater')[[3]]
 ```
-The p-value of first test 0.07091956 > 0.05. Conclusion: H0 is not rejected, median bill is bigger or equal to 40 euro.
+The p-value of first test 0.0709 > 0.05. Conclusion: H0 is not rejected, median bill is bigger or equal to 40 euro.
 The p-value of first test 0.7715 > 0.05. Conclusion: H0 is not rejected, the fraction of bills less than 10 euro is at most 25%.
 
 ## Exercise 4
@@ -187,7 +187,7 @@ As both data Shapiro test p-value results are bigger than 0.05 and QQ-Plots' dot
 Conclusion: there is significant correlation, given dataset's normality.
 
 **b)**
-For difference in speed test we will use t-tset in both softdrink and the energy drink conditions. The test  null hypothesis: $H_{0}:H_{before} = H_{after}$, and alternative hypothesis: $H_{before} \neq H_{after}$.
+For difference in speed test we will use t-tset in both softdrink and the energy drink conditions. The test  null hypothesis: $H_{0}:\mu_{before} = \mu_{after}$, and alternative hypothesis: $\mu_{before} \neq \mu_{after}$.
 ```{r}
 lemo = run[run$drink=='lemo', ]
 t.test(lemo$before, lemo$after, paired = TRUE)[[3]]
@@ -231,7 +231,7 @@ for (i in 1:B)
  p
 ```
 
-Both two permutation tests results (softdrink: 0.434 and energy: 0.136) are bigger than 0.05, which means there are no big speed difference before drink and and after, no matter we test on which drink.
+Both two permutation tests results (softdrink: 0.406 and energy: 0.112) are bigger than 0.05, which means there are no big speed difference before drink and and after, no matter we test on which drink.
 
 A more interesing outcome is t.test of softdrink's p-value = 0.4373423 > 0.05 and t.test of energy's p-value = 0.1263962 > 0.05, which means t-test results also show no big speed difference before drink and and after, both in softdrink condition and energy drink condition.
 
@@ -254,7 +254,7 @@ pr=sum(tstar>myt)/B
 p=2*min(pl,pr)
 p
 ```
-p-value = 0.188 > 0.05, hence the is no difference between the two types of drinks.
+p-value = 0.158 > 0.05, hence the is no difference between the two types of drinks.
 
 **d)**
 Whether drinking the energy drink speeds up the running have another important attribute, that is the test time after drinking. Maybe energy drink will have great influence just in a very short time, may be 5 min, after it drinked. So more test cases on test time are needed. This is the similar objection to the the experiment design in c).
