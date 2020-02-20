@@ -253,6 +253,9 @@ p
 ```
 p-value = 0.188 > 0.05, hence the is no difference between the two types of drinks.
 
+**d)**
+Whether drinking the energy drink speeds up the running have another important attribute, that is the test time after drinking. Maybe energy drink will have great influence just in a very short time, may be 5 min, after it drinked. So more test cases on test time are needed. This is the similar objection to the the experiment design in c).
+
 ## Exercise 5
 **a)**
 ```{r}
