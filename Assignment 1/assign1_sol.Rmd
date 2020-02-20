@@ -102,7 +102,7 @@ There is one inconsistency in the data. It contains zero values, which is inappr
 **b)**
 With lambda in the range between 0.01 and 0.1, we used a bootstrap-test to test every single one of them to evaluate whether thedata fits an exponential distribution.
 ```{r}
-lambdas=seq(0.01, 0.1, by=0.01)
+lambdas=seq(0.01, 0.1, by=0.005)
 B=1000
 t=median(telephone)
 n=length(telephone)
@@ -119,7 +119,7 @@ for (i in 1:length(lambdas)) {
 }
 p
 ```
-As result, when lambda equals 0.02, p-value = 0.074 > 0.05, so the data fits Exp(0.02).
+As result, when lambda equals 0.025, p-value = 0.692 > 0.05, so the data fits Exp(0.025).
 
 **c)**
 To construct a 95% bootstrap confidence interval, first we should do bootstrap simulation to generate 1000 groups $(X_{1}^{*}, \ldots, X_{N}^{*})$ and compute $T_{i}^{*}=median\left(X_{1}^{*}, \ldots, X_{N}^{*}\right)$. With the formula for the bootstrap confidence interval with confidence $1-2\alpha$: $\left[2 T-T_{(1-\alpha)}^{*}, 2 T-T_{(\alpha)}^{*}\right]$, I can now construct a 95% bootstrap confidence interval.
