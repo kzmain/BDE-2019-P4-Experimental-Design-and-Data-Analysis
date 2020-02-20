@@ -92,12 +92,12 @@ telephoneBills = read.table('telephone.txt', header=TRUE)
 telephone =  telephoneBills[telephoneBills$Bills!=0, ]
 hist(telephone, xlab='First Month Bills', ylab='Money', main='Histogram of New Subscribers')
 ```
-I think best plot to represent the distribution of subscribers is histogram.
-The strategy that the manager should adopt is to increase the preferential activities in the price range of 30-70 to promote low consumption users to increase consumption, and ultimately increase users in this price range.
-There is one inconsistencies in the data. It contains zero value which is inappropriate since the survey should target customers who have already spent. Hence zero-cost subscribers shouldn't be included.
+The best plot to represent the distribution of subscribers is a histogram.
+The strategy that the manager should adopt is to increase the preferential activities in the price range of 30-70, in order to promote low consumption users to increase consumption, and ultimately increase users in this price range.
+There is one inconsistency in the data. It contains zero values, which is inappropriate since the survey should only target customers who have already spent money on their services. Hence zero-cost subscribers shouldn't be included.
 
 **b)**
-I make a sequence between 0.01 and 0.1, and use bootstrap-test to test every single one of them to evaluate wether data fits exponential distribution.
+With lambda in the range between 0.01 and 0.1, we used a bootstrap-test to test every single one of them to evaluate whether thedata fits an exponential distribution.
 ```{r}
 lambdas=seq(0.01, 0.1, by=0.01)
 B=1000
@@ -116,10 +116,10 @@ for (i in 1:length(lambdas)) {
 }
 p
 ```
-As result, when lambda equals 0.02, p-value = 0.074 > 0.05, so the data fit Exp(0.02)
+As result, when lambda equals 0.02, p-value = 0.074 > 0.05, so the data fits Exp(0.02).
 
 **c)**
-To construct a 95% bootstrap confidence interval, first I should do bootstrap simulation to generate 1000 groups $(X_{1}^{*}, \ldots, X_{N}^{*})$ and compute $T_{i}^{*}=median\left(X_{1}^{*}, \ldots, X_{N}^{*}\right)$. With the formula for the bootstrap confidence interval with confidence $1-2\alpha$: $\left[2 T-T_{(1-\alpha)}^{*}, 2 T-T_{(\alpha)}^{*}\right]$, I can now construct a 95% bootstrap confidence interval.
+To construct a 95% bootstrap confidence interval, first we should do bootstrap simulation to generate 1000 groups $(X_{1}^{*}, \ldots, X_{N}^{*})$ and compute $T_{i}^{*}=median\left(X_{1}^{*}, \ldots, X_{N}^{*}\right)$. With the formula for the bootstrap confidence interval with confidence $1-2\alpha$: $\left[2 T-T_{(1-\alpha)}^{*}, 2 T-T_{(\alpha)}^{*}\right]$, I can now construct a 95% bootstrap confidence interval.
 ```{r}
 B = 1000
 medians = numeric(B)
@@ -156,13 +156,13 @@ c(2*T1-Tstar975,2*T1-Tstar25)
 So we have $\lambda$ = 0.022, and CI for population median is [16.12500, 36.56688].
 
 **e)**
-I choose sign test to verify wheter the median is bigger or equal to 40, and wheter the probability less than 10 is at most 25%.
+We have chosen a sign test to verify wheter the median is bigger or equal to 40, and wheter the probability less than 10 is at most 25%.
 ```{r}
 binom.test(sum(telephone>=40),length(telephone),p=0.5)[[3]]
 binom.test(sum(telephone<10),length(telephone),p=0.25, alternative='greater')[[3]]
 ```
-the p-value of first test 0.07091956 > 0.05. Conclusion: H0 is not rejected, median bill is bigger or equal to 40 euro.
-the p-value of first test 0.7715 > 0.05. Conclusion: H0 is not rejected, the fraction of bills less than 10 euro is at most 25%.
+The p-value of first test 0.07091956 > 0.05. Conclusion: H0 is not rejected, median bill is bigger or equal to 40 euro.
+The p-value of first test 0.7715 > 0.05. Conclusion: H0 is not rejected, the fraction of bills less than 10 euro is at most 25%.
 
 ## Exercise 4
 **a)**
