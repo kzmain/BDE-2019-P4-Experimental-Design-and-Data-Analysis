@@ -57,11 +57,14 @@ light = 7.442 / ((scan('light.txt', quiet=TRUE) / 1000 + 24.8) / 10^6)
 light1879 = scan('light1879.txt', quiet=TRUE) + 299000
 light1882 = scan('light1882.txt', quiet=TRUE) + 299000
 par(mfrow=c(1,3))
+qqnorm(light); qqnorm(light1879); qqnorm(light1882)
 shapiro.test(light)[[2]]
 shapiro.test(light1879)[[2]]
 shapiro.test(light1882)[[2]]
 ```
-After computing all three data sets' p-value, the data from light1879 and light1882 have a p-value greater than 0.05, and the data from light has a p-value lower than 0.05. So it can be deduced that 'light1879' and 'light1882' are both normally distributed, and the data set 'light' is not normally distributed.
+We drew QQ-plot and computed all three data sets' Shapiro test p-value. We got the data from light1879 and light1882 are nearly in a line in QQ-plot have Shapiro test p-values greater than 0.05, which means these two data sets' data are normally distributed. Besides, the data from light has a Shapiro test's p-value lower than 0.05, and the data values are not distribued in a line in QQ-plot, which means this data set does not have nomality.
+
+In conclusion it can be deduced that 'light1879' and 'light1882' are both normally distributed, and the data set 'light' is not normally distributed.
 
 **b)**
 We can use t-distribution to calculate distribution confidence intervals even the distribution is not a normal distribution. t.test in R would give me confidence intervals directly.
