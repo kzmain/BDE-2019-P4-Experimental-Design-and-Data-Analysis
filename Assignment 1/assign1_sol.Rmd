@@ -1,14 +1,14 @@
 ---
 title: "Assignment 1"
-author: "Chang Liu"
-date: "2020/2/6"
+author: "Chang Liu, Kai Zhang, Sherida van den Bent"
+date: "2020/02/20"
 output: pdf_document
 ---
 ```{r echo=FALSE, results='hide',message=FALSE}
 set.seed(1234)
 ```
 ## Exercise 1
-First, I construct a simple function that could return the power of t-test with given parameters (n,m,mu,nu,sd). 
+First, we construct a simple function that will return the power of the t-test using the given parameters (n,m,mu,nu,sd). 
 ```{r}
 powerOfTtest <- function(n, m, mu, nu, sd)
 {
@@ -27,21 +27,21 @@ powerOfTtest <- function(n, m, mu, nu, sd)
 ```
 
 **a)** & **b)** &**c)**
-Using the above function, I can now calculate the power of the t-test with  given parameters. Then I make a plot for all sets of parameters with red, green and blue color respectively.
+Using the above function, we can now easily calculate the power of the t-test with the given parameters. This is plotted for all sets of parameters, with red for subquestion a, green for subquestion b, and blue for subquestion c.
 ```{r}
-nu = seq(175,185,by=0.25)
-# compute and plot power function with parametrs : n = m = 30, mu=180 and sd=5
-n = m = 30; mu = 180; sd = 5
+nu = seq(175,185,by=0.25); mu = 180 # these parameters stay equal in all sets
+# compute and plot power function with parametrs : n = m = 30, and sd = 5
+n = m = 30; sd = 5
 power = powerOfTtest(n, m, mu, nu, sd)
 plot(nu, power, col = 'red')
 
-# compute and plot power function with parametrs : n = m = 100, mu=180 and sd=5.
-n = m = 100; mu = 180; sd = 5
+# compute and plot power function with parametrs : n = m = 100,and sd = 5.
+n = m = 100; sd = 5
 power = powerOfTtest(n, m, mu, nu, sd)
 points(nu, power, col = 'green')
 
-# compute power function with parametrs : n = m = 30, mu=180 and sd=15.
-n = m = 30; mu = 180; sd = 15
+# compute power function with parametrs : n = m = 30, and sd = 15.
+n = m = 30; sd = 15
 power = powerOfTtest(n, m, mu, nu, sd)
 points(nu, power, col = 'blue')
 ```
@@ -51,7 +51,7 @@ First, with fixed n,m,sd and mu. As the second sample's mean of the sampling dis
 
 ## Exercise 2
 **a)** 
-To investigate the normality for all three data sets, I choose to use Shapiro-Wilk normality test with an alpha level of 0.05. The null-hypothesis of this test is that the population is normally distributed.
+To investigate the normality for all three data sets, we choose to use Shapiro-Wilk normality test with an alpha level of 0.05. The null-hypothesis of this test is that the population is normally distributed.
 ```{r}
 light = 7.442 / ((scan('light.txt', quiet=TRUE) / 1000 + 24.8) / 10^6)
 light1879 = scan('light1879.txt', quiet=TRUE) + 299000
@@ -61,7 +61,7 @@ shapiro.test(light)[[2]]
 shapiro.test(light1879)[[2]]
 shapiro.test(light1882)[[2]]
 ```
-After computing all three data sets' p-value, the data from light1879 and light1882 have a p-value greater than 0.05. So I would deduce 'light1879' and 'light1882' is normally distributed, the data set 'light' is not normally distributed.
+After computing all three data sets' p-value, the data from light1879 and light1882 have a p-value greater than 0.05, and the data from light has a p-value lower than 0.05. So it can be deduced that 'light1879' and 'light1882' are both normally distributed, and the data set 'light' is not normally distributed.
 
 **b)**
 We can use t-distribution to calculate distribution confidence intervals even the distribution is not a normal distribution. t.test in R would give me confidence intervals directly.
@@ -73,9 +73,9 @@ c(lightCi[1], lightCi[2])
 c(light1879Ci[1], light1879Ci[2])
 c(light1882Ci[1], light1882Ci[2])
 ```
-
+A 95% confidence interval tells us that the true mean of the population is contained by this interval, with 95% certainty. However, the three confidence intervals don't all overlap (only light and light1882 overlap), even though in theory the data of all three datasets should be sampled from the same population (the true mean in this case would be the true speed of light). Therefore it is hard to try to pin down the true mean by this data alone.
 **c)** 
-t-test will perform less accurately when the distribution is not normal, so I choose Wilcoxon signed rank test to find the first sample's p-value.
+The current most accurate value for the speed of light is 299792.458. To see if our data is consistent with this value, our true population mean, we will test it. For the normal distributed data we will use a t-test. A t-test will perform less accurately when the distribution is not normal, so we choose Wilcoxon signed rank test to find the first sample's p-value (as the first sample, light.txt, is not normally distributed. In this test, the null hypothesis is that the mean of the data is the true speed of light, 299792.458.
 ```{r warning=FALSE}
 lightSpeed = 299792.458
 p = wilcox.test(light,mu=lightSpeed)[[3]]
@@ -83,7 +83,7 @@ p1879 = t.test(light1879, mu=lightSpeed)[[3]]
 p1882 = t.test(light1882,mu=lightSpeed)[[3]]
 p; p1879; p1882;
 ```
-As reult, only light1882's p-vlaue (0.1189198) > 0.05, which makes it most accurate sample.
+As one can see, only light1882's p-valuee (0.1189198) > 0.05, which makes it most accurate sample we have; furthermore, it seems that most data from the measurements of Michelson and Newcomb are not consistent with the true speed of light.
 
 ## Exercise 3
 **a)**
