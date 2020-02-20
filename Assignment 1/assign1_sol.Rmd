@@ -304,3 +304,4 @@ I choose boxplot and strip to check the ANOVA model assumptions. In boxplot grap
 attach(chickwts)
 kruskal.test(weight,feed)
 ```
+The Kruskal-Wallis test p-value is 5.113e-07< 0.05, so we can reach a conclusion that there do have difference between each group. Furthermore, this conclusion is the same as b).
