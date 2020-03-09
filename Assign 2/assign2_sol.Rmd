@@ -1,0 +1,228 @@
+---
+title: "Assignment 1"
+author: "Sherida van den Bent, Chang Liu, Kai Zhang"
+date: "2020/2/26"
+output: pdf_document
+---
+```{r echo=FALSE,,message=FALSE}
+set.seed(1234)
+library("car", lib.loc="~/opt/anaconda3/lib/R/library")
+library("lme4")
+```
+## Exercise 1
+**a)**
+In this experiment, we have two factor environment and humidity. Environment has a fixed level of $\textit{I} = 3$, and humidity has a fixed level of $\textit{J} = 2$. Also, we have 18 experimental units, and because of balanced design is a commonly choice, we choose $\textit{N} = 18 \div \textit{I} \div \textit{J} = 3$. We use 1, 2, 3 in first row (envirnoment) to represent cold, intermediate and warm respectively. In second row(humidity), we use 1, 2 to represent dry and wet. The third row means unit index from 1 to 16. Each column represents a combination of environment, humidity, and experimental unit.
+```{r}
+I=3; J=2; N=3
+rbind(rep(1:I,each=N*J),rep(1:J,N*I),sample(1:(N*I*J)))
+```
+For unit 16 use levels ('cold','dry'); for unit 5 use levels ('cold','wet'); . . .; for unit 1 use levels ('warm','wet').
+
+**b)**
+```{r}
+bread = read.table('bread.txt')
+par(mfrow=c(1,2))
+boxplot(hours~environment, data=bread); boxplot(hours~humidity, data=bread);
+interaction.plot(bread$environment,bread$humidity,bread$hours); interaction.plot(bread$humidity,bread$environment,bread$hours)
+```
+
+**c)**
+```{r}
+breadaov=lm(hours~environment*humidity, data=bread); anova(breadaov)
+```
+The p-value of testing: $H_0 : \gamma_{i,j} = 0$for all (i, j) is 3.705e-07, means interaction effect is highly significant, in other word, the relationship between humidity and the time to decay differs by the level of environment.
+
+**d)**
+Base on the previous calculation of anova, the factor environment has the lowest p-value, so environment has greatest influence on the decay. This is not a good question, because since interaction effect is highly significant, we should NOT interpret the main effects without considering the interaction effect.
+
+**e)**
+```{r}
+plot(breadaov, 2)
+shapiro.test(residuals(object = breadaov))
+```
+First we need to check the assumption: normal distribution of the model residuals. After using QQ-plot, we can't tell whether it is normal distribution because of some outliers. So we also use Shapiro-Wilk normality test and based on the p-value(0.1911 > 0.05), we could say it probably normal distributed. Conclusion: the first assumption of normal distribution of the model residuals has been met.
+```{r}
+plot(breadaov, 1)
+```
+The plot seems to indicate that the residuals and the fitted values are uncorrelated. Conclusion: the second assumption of homogeneity of variance of the groups has been met. There are three outliers showed in the plot: NO.5, NO.7 and NO.8.
+
+## Exercise 2
+**a)**
+In this experience, we have two factor interface and skill. The treatment factor interface has a fixed level of $\textit{I} = 3$, and the block variable skill has a fixed level of $\textit{B} = 5$. Also, we have 15 experimental units, and because of balanced design, we choose $\textit{N} = 15 \div \textit{I} \div \textit{J} = 1$.
+```{r}
+I=3; B=5; N=1
+for (i in 1:B) print(sample(1:15)[(I*(i-1) + 1):(I*(i-1) + 3)])
+```
+For block 1 assign unit 5 to treatment 1, unit 12 to treatment 2, etc., for block 2 assign unit 11 to treatment 1, unit 3 to treatment 2, etc.
+**b)**
+```{r}
+search = read.table('search.txt')
+search$skill=as.factor(search$skill); search$interface=as.factor(search$interface);
+attach(search)
+par(mfrow=c(1,2))
+boxplot(time~interface); boxplot(time~skill);
+interaction.plot(interface,skill,time); interaction.plot(skill,interface,time);
+detach(search)
+```
+From boxplot, we can see factors do have some effect. 
+From interaction plot, the lines in interaction plot are roughly parallel, so we can say there is no interactions between interface and skill.
+**c)**
+```{r}
+searchaov=lm(time~interface+skill, data=search)
+anova(searchaov)
+```
+The p-value for testing $H_{0}:\alpha_{i}=0$ for all $\textit(i)$ is 0.01310. Conclusion:  reject $H_{0}$ and search time is not same for all interfaces.
+```{r}
+summary(searchaov)
+15.013+2.700+3.033
+```
+The estimate value for $\hat{\mu}$=15.013, $\hat{\alpha_2}$=2.700, $\hat{\beta_3}$=3.033. So the the estimated time for given factors is $\hat{\mu_{23}}=\hat{\mu}+\hat{\alpha_2}+\hat{\beta_3}$=20.746.
+**d)**
+```{r}
+plot(searchaov, 2)
+shapiro.test(residuals(object = searchaov))
+```
+First we need to check the assumption: normal distribution of the model residuals. After using QQ-plot, we can't tell whether it is normal distribution because of some outliers. So we also use Shapiro-Wilk normality test and based on the p-value(0.2817 > 0.05), we could say it probably normal distributed. Conclusion: the first assumption of normal distribution of the model residuals has been met.
+```{r}
+plot(searchaov, 1)
+```
+The plot seems to indicate that the residuals and the fitted values are uncorrelated. Conclusion: the second assumption of homogeneity of variance of the groups has been met.
+
+**e)**
+```{r}
+attach(search)
+friedman.test(time, interface, skill)
+detach(search)
+```
+p-value for testing $H_{0}$ : no treatment effect is 0.04076, so $H_{0}$ is rejected, there is an effect of interface.
+
+**f)**
+```{r}
+searchoneaov = lm(time ~ interface, data = search)
+anova(searchoneaov)
+```
+It is not useful to perform this test on this dataset, because randomized block design is to make the variability within blocks is less than the variability between blocks, and this design reduces variability within treatment conditions and potential confounding, producing a better estimate of treatment effects. Since we already gather enough data, we should apply the randomized block design instead of one-way ANOVA.
+
+## Exercise 3
+**a)**
+```{r}
+cow = read.table('cow.txt')
+cow$id = factor(cow$id); cow$per = factor(cow$per);
+cowlm=lm(milk~treatment+id,data=cow)
+anova(cowlm)
+par(mfrow=c(1,2))
+plot(cowlm, 2); plot(cowlm, 1)
+```
+The p-value for treatment is 0.8281. There is no evidence that feedingstuffs are different.
+**b)**
+```{r}
+cowlm=lm(milk~treatment+order+per+id,data=cow)
+anova(cowlm)
+cowlmer=lmer(milk~treatment+order+per+(1|id), data=cow, REML=FALSE)
+cowlmer1=lmer(milk~order+per+(1|id), data=cow, REML=FALSE)
+summary(cowlmer)
+anova(cowlmer1,cowlmer)
+```
+**c)**
+```{r}
+attach(cow)
+t.test(milk[treatment=="A"],milk[treatment=="B"],paired=TRUE)
+detach(cow)
+```
+The p-value for treatment is identical to the one of the paired-sample t-test found previously (the order of the treatments was ignored). The p-value for id is not interesting.
+
+## Exercise 4
+**a)**
+```{r}
+nausea = read.table('nauseatable.txt')
+df = data.frame(matrix(0,304,2))
+names(df) <- c("naus", "medicin")
+df[1:180, 1] = 1; df[181: 304, 1] = 2
+df[1:100, 2] = 1; df[101:132, 2] = 2; df[133:180, 2] = 3
+df[181:232, 2] = 1; df[233:267, 2] = 2; df[268:304, 2] = 3
+xtabs(~medicin+naus, data=df)
+```
+We use number 1 in column "naus" to indicate "Incidence of no nausea", number 2 to indicate "Incidence of Nausea". Number 1 in column 'medicin' to indicate "Chlorpromazine" and 2, 3 for "Pentobarbital(100mg)", "Pentobarbital(150mg)" respectively. xtabs are a convenient function to creat contingency table, so the result is same as the data in "nauseatable.txt".
+**b)**
+```{r}
+B=1000
+tstar=numeric(B)
+for (i in 1:B) {
+  treatstar=df
+  treatstar[,2] = sample(df[,2])
+  tstar[i] = chisq.test(xtabs(~medicin+naus, data = treatstar))[[1]]
+}
+myt = chisq.test(xtabs(~medicin+naus, data = df))[[1]]
+pr=sum(tstar>myt)/B
+pr
+```
+The p-value for testing $H_{0}: $the different medicins work equally well against nausea is 0.031 Conclusion:  we reject $H_{0}$ and we have confidence that there is difference between different medicins.
+**c)**
+```{r}
+chisq.test(xtabs(~medicin+naus, data = df))[[3]]
+```
+p-value from permutation test and chisquare test for contingency tables are very close.
+
+## Exercise 5
+**a)**
+```{r}
+crime = read.table('expensescrime.txt', header = TRUE)[, 2:7]
+par(mfrow=c(2,3))
+for (i in 1:6) hist(crime[,i],main=names(crime)[i])
+par(mfrow=c(1,1))
+crimelm = lm(expend~bad+crime+lawyers+employ+pop,data=crime)
+plot(1:nrow(crime), cooks.distance(crimelm), type='b')
+pairs(crime)
+#round(cor(crime),2)
+```
+From histgram 
+
+**b)**
+We use summary function, and its 8th output is $R^2$ determination coefficient. We don't print all the result, but p-value here is equality important.
+First we use step-up method.
+```{r}
+summary(lm(expend~bad,data=crime))[[8]]
+summary(lm(expend~crime,data=crime))[[8]]
+summary(lm(expend~lawyers,data=crime))[[8]]
+summary(lm(expend~employ,data=crime))[[8]]
+summary(lm(expend~pop,data=crime))[[8]]
+```
+Model expend~employ has max determination coefficient: 0.954, so wo chose this model for next step.
+```{r}
+summary(lm(expend~employ+bad,data=crime))[[8]]
+summary(lm(expend~employ+crime,data=crime))[[8]]
+summary(lm(expend~employ+lawyers,data=crime))[[8]]
+summary(lm(expend~employ+pop,data=crime))[[8]]
+```
+In those four model only lawyers in expend~employ+lawyers is significant(p-value=0.00113 < 0.05), and it has determination coefficient 0.9632 larger than 0.954, so wo chose this model for next step.
+```{r}
+summary(lm(expend~employ+lawyers+bad,data=crime))[[8]]
+summary(lm(expend~employ+lawyers+crime,data=crime))[[8]]
+summary(lm(expend~employ+lawyers+pop,data=crime))[[8]]
+```
+All of those newly added feature yields insignificant explanatory variables, so we can stop and take model expend~employ+lawyers as our final step-up model.
+Then we use step-up method.
+```{r}
+summary(lm(expend~bad+crime+lawyers+employ+pop,data=crime))[[8]]
+```
+Feature crime has the largest p-vlaue 0.25534, and it is large than 0.05, so we remove crime from the model.
+```{r}
+summary(lm(expend~bad+lawyers+employ+pop,data=crime))[[8]]
+```
+Feature pop has the largest p-vlaue 0.06012, and it is large than 0.05, so we remove pop from the model.
+```{r}
+summary(lm(expend~bad+lawyers+employ,data=crime))[[8]]
+```
+Feature bad has the largest p-vlaue 0.34496, and it is large than 0.05, so we remove bad from the model.
+```{r}
+summary(lm(expend~lawyers+employ,data=crime))[[8]]
+```
+All remaining explanatory variables in the model are significant, so we can stop and take model expend~employ+lawyers as our final step-up model.
+
+Both method generate same model: expend~employ+lawyers. But 
+**c)**
+```{r}
+vif(lm(expend~lawyers+employ,data=crime))
+summary(lm(expend~lawyers,data=crime))[[8]]
+summary(lm(expend~employ,data=crime))[[8]]
+```

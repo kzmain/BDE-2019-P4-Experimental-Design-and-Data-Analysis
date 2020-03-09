@@ -267,7 +267,7 @@ sunflower = chickwts[chickwts$feed == 'sunflower', ]$weight
 t.test(meatmeal, sunflower)[[3]]
 wilcox.test(meatmeal, sunflower)[[3]]
 ks.test(meatmeal, sunflower)[[2]]
-
+par(mfrow=c(1,2))
 qqnorm(meatmeal)
 qqnorm(sunflower)
 ```
@@ -279,7 +279,7 @@ From, t-test result, we can assume that meatmeal condition and sunflower conditi
 
 Both Mann-Whitney test and Kolmogorov-Smirnov test show that there are no big difference between meatmeal condition and sunflower condition.
 
-But why MW got bigger p-value than KS's p-value?The KS test is sensitive to any differences in the two distributions. Substantial differences in shape, spread or median will result in a small P value. In contrast, the MW test is mostly sensitive to changes in the median. This means in this question we'd better take MW's p-value.
+But why MW got bigger p-value than KS's p-value? The KS test is sensitive to any differences in the two distributions. Substantial differences in shape, spread or median will result in a small P value. In contrast, the MW test is mostly sensitive to changes in the median. This means in this question we'd better take MW's p-value.
 
 **b)**
 ```{r}
@@ -293,9 +293,9 @@ The summary of ANOVA shows estimated chick weights for each feed supplements are
 
 In conclusion sunflower is the best feed supplement.
 ```{r}
-par(mfrow=c(1,1)); qqnorm(residuals(chickwtsaov))
+qqnorm(residuals(chickwtsaov))
 ```
-Finally we need to check the assumption of normality of the populations. We used residuals data to draw QQ-plots, and all data are in a line, which is normality.
+Finally we need to check the assumption of normality of the errors. We used residuals data to draw QQ-plots, and all data are in a line, which is normality.
 
 **c)**
 ```{r}
