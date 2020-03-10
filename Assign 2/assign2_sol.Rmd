@@ -150,6 +150,7 @@ df[181:232, 2] = 1; df[233:267, 2] = 2; df[268:304, 2] = 3
 xtabs(~medicin+naus, data=df)
 ```
 We use number 1 in column "naus" to indicate "Incidence of no nausea", number 2 to indicate "Incidence of Nausea". Number 1 in column 'medicin' to indicate "Chlorpromazine" and 2, 3 for "Pentobarbital(100mg)", "Pentobarbital(150mg)" respectively. xtabs are a convenient function to creat contingency table, so the result is same as the data in "nauseatable.txt".
+
 **b)**
 ```{r}
 B=1000
@@ -164,6 +165,7 @@ pr=sum(tstar>myt)/B
 pr
 ```
 The p-value for testing $H_{0}: $the different medicines work equally well against nausea is 0.031. Conclusion:  we reject $H_{0}$ and we have confidence that there exists difference between the different medicines.
+
 **c)**
 ```{r}
 chisq.test(xtabs(~medicin+naus, data = df))[[3]]
@@ -284,14 +286,7 @@ summary(expendlm2)
 ```
 There is no specific curved pattern visible, good!
 
-(2)Plot residuals of X_j  against residuals of Y with omitted X_j 
-```{r}
-x=residuals(lm(lawyers+employ~bad+crime+pop)) 
-y=residuals(lm(expend~bad+crime+pop))
-plot(x,y)
-```
-
-(3)normal QQ-plot of the residuals
+(2)normal QQ-plot of the residuals
 ```{r}
 plot(expendlm2, 2)
 shapiro.test(residuals(expendlm2))
