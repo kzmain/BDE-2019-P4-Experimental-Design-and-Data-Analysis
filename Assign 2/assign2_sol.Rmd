@@ -1,7 +1,7 @@
 ---
-title: "Assignment 1"
+title: "Assignment 2"
 author: "Sherida van den Bent, Chang Liu, Kai Zhang"
-date: "2020/2/26"
+date: "2020/03/10"
 output: pdf_document
 ---
 ```{r echo=FALSE,,message=FALSE}
@@ -11,12 +11,12 @@ library("lme4")
 ```
 ## Exercise 1
 **a)**
-In this experiment, we have two factor environment and humidity. Environment has a fixed level of $\textit{I} = 3$, and humidity has a fixed level of $\textit{J} = 2$. Also, we have 18 experimental units, and because of balanced design is a commonly choice, we choose $\textit{N} = 18 \div \textit{I} \div \textit{J} = 3$. We use 1, 2, 3 in first row (envirnoment) to represent cold, intermediate and warm respectively. In second row(humidity), we use 1, 2 to represent dry and wet. The third row means unit index from 1 to 16. Each column represents a combination of environment, humidity, and experimental unit.
+In this experiment, we have two factors: environment and humidity. Environment has a fixed level of $\textit{I} = 3$, and humidity has a fixed level of $\textit{J} = 2$. Furthermore, we have 18 experimental units, and because balanced design is a common choice, we choose $\textit{N} = 18 \div \textit{I} \div \textit{J} = 3$. We use 1, 2, 3 in the first row (the environment) to represent cold, intermediate, and warm respectively. In the second row (humidity), we use 1 and 2 to represent dry and wet. The third row is the unit index, ranging from 1 to 16. Each column represents a combination of environment, humidity, and experimental unit.
 ```{r}
 I=3; J=2; N=3
 rbind(rep(1:I,each=N*J),rep(1:J,N*I),sample(1:(N*I*J)))
 ```
-For unit 16 use levels ('cold','dry'); for unit 5 use levels ('cold','wet'); . . .; for unit 1 use levels ('warm','wet').
+For unit 16 we use levels ('cold','dry'); for unit 5 we use levels ('cold','wet'); . . .; for unit 1 we use levels ('warm','wet').
 
 **b)**
 ```{r}
@@ -25,21 +25,21 @@ par(mfrow=c(1,2))
 boxplot(hours~environment, data=bread); boxplot(hours~humidity, data=bread);
 interaction.plot(bread$environment,bread$humidity,bread$hours); interaction.plot(bread$humidity,bread$environment,bread$hours)
 ```
-From box plot, we can see that `itermediate` and `warm` has similar declay time, `cold` can greatly increase declay time. Futhermore, middian time value of `dry` is bigger than `wet`.
-From the interaction lines we can see that it do have interactions between envirnment and humidity.
+From the box plot, we can see that `intermediate` and `warm` have a similar decay time, and `cold` can greatly increase decay time. Futhermore, the median time value of `dry` is bigger than the median time value of `wet`.
+From the interaction lines we can see that there is an interaction between the ennvironment and the humidity.
 
 **c)**
-In this analysis thers's no mixed effect, so only do fixed effects analysis will be conducted.
+In this analysis there is no mixed effect, so only fixed effects analysis will be conducted.
 ```{r}
 bread = read.table('bread.txt')
 bread$environment=factor(bread$environment); bread$humidity=factor(bread$humidity) 
 breadlm=lm(hours~environment*humidity, data=bread); 
 anova(breadlm)
 ```
-Interest is in the main and interaction effects of the outer and inner factor. Main effects for environment and humidity are significant, at the same time the p-value of testing: $H_0 : \gamma_{i,j} = 0$ for all (i, j) is 3.705e-07,which means interaction effect is highly significant, in other word, the bread decay time are related to the effects between the humidity and the environment. If the humidity does not change, the environment changes then the decay time changes. If the environment does not change and humidity changes, so does the decay time.
+Our interest is in the main and interaction effects of the outer and inner factor. The main effects for environment and humidity are significant, at the same time the p-value of testing: $H_0 : \gamma_{i,j} = 0$ for all (i, j) is 3.705e-07, which means that interaction effect is highly significant; in other words, the bread decay times are related to the effects between the humidity and the environment. If the humidity does not change, but the environment changes, then the decay time changes as well. If the environment does not change, but the humidity changes, so does the decay time.
 
 **d)**
-This is not a good question, from previous question's summary we also can see interaction effect is highly significan, we should NOT interpret the main effects without considering the interaction effect.
+This is not a good question. The reason for this is as follows. From the summary shown in the previous question we also can see interaction effect is highly significant; we should NOT interpret the main effects without considering the interaction effect.
 
 **e)**
 ```{r}
@@ -47,17 +47,17 @@ par(mfrow=c(2,2))
 plot(breadlm, 2); plot(breadlm, 1)
 shapiro.test(residuals(object = breadlm))
 ```
-First we need to check the assumption: normal distribution of the model residuals. After using QQ-plot, we can’t tell whether it is normal distribution because of some outliers. So we also use Shapiro-Wilk normality test and based on the p-value(0.1911 > 0.05), we could say it probably normal distributed. Conclusion: the first assumption of normal distribution of the model residuals has been met.
-The Fitted plot seems to indicate that the residuals and the fitted values are uncorrelated. Conclusion: the second assumption of homogeneity of variance of the groups has been met. There are three outliers showed in the plot: NO.5, NO.7 and NO.8.
+First we need to check the assumption: normal distribution of the model residuals. After creating a QQ-plot, we cannot tell whether it is a normal distribution because of some outliers. Therefore we also use the Shapiro-Wilk normality test. Based on the p-value(0.1911 > 0.05), we could say that it is probably normally distributed. Our conclusion: the first assumption of normal distribution of the model residuals has been met.
+The fitted plot seems to indicate that the residuals and the fitted values are uncorrelated. Our conclusion: the second assumption of homogeneity of variance of the groups has been met. There are three outliers showed in the plot: NO.5, NO.7 and NO.8.
 
 ## Exercise 2
 **a)**
-In this experience, we have two factor interface and skill. The treatment factor interface has a fixed level of $\textit{I} = 3$, and the block variable skill has a fixed level of $\textit{B} = 5$. Also, we have 15 experimental units, and because of balanced design, we choose $\textit{N} = 15 \div \textit{I} \div \textit{J} = 1$.
+In this experiment, we have two factor interface and skill. The treatment factor interface has a fixed level of $\textit{I} = 3$, and the block variable skill has a fixed level of $\textit{B} = 5$. Also, we have 15 experimental units, and because of balanced design, we choose $\textit{N} = 15 \div \textit{I} \div \textit{J} = 1$.
 ```{r}
 I=3; B=5; N=1
 for (i in 1:B) print(sample(1:15)[(I*(i-1) + 1):(I*(i-1) + 3)])
 ```
-For block 1 assign unit 4 to treatment 1, unit 15 to treatment 2, etc., for block 2 assign unit 12 to treatment 1, unit 3 to treatment 2, etc.
+For block 1 we assign unit 4 to treatment 1, unit 15 to treatment 2, etc., for block 2 assign unit 12 to treatment 1, unit 3 to treatment 2, etc.
 
 **b)**
 ```{r}
@@ -67,27 +67,27 @@ attach(search); par(mfrow=c(2,2))
 boxplot(time~interface); boxplot(time~skill);
 interaction.plot(interface,skill,time); interaction.plot(skill,interface,time);
 ```
-From boxplot, we can see factors do have some effect. 
-From interaction plot, the lines in interaction plot are roughly parallel, so we can say there is no interactions between interface and skill.
+From looking at the boxplot, we can see that factors do have some effect. 
+From looking at the interaction plot, the lines in interaction plot are roughly parallel; therefore we can say there are no interactions between interface and skill.
 
 **c)**
 ```{r results='hide'}
 searchaov=lm(time~interface+skill, data=search)
 anova(searchaov)
 ```
-The p-value for testing $H_{0}:\alpha_{i}=0$ for all $\textit(i)$ is 0.01310. Conclusion:  reject $H_{0}$ and search time is not same for all interfaces.
+The p-value for testing $H_{0}:\alpha_{i}=0$ for all $\textit(i)$ is 0.01310. Conclusion: reject $H_{0}$ and search time is not the same for all interfaces.
 ```{r results='hide'}
 summary(searchaov)
 15.013+2.700+3.033
 ```
-The estimate value for $\hat{\mu}$=15.013, $\hat{\alpha_2}$=2.700, $\hat{\beta_3}$=3.033. So the the estimated time for given factors is $\hat{\mu_{23}}=\hat{\mu}+\hat{\alpha_2}+\hat{\beta_3}$=20.746.
+The estimate value for $\hat{\mu}$=15.013, $\hat{\alpha_2}$=2.700, $\hat{\beta_3}$=3.033. So the the estimated time for the given factors is $\hat{\mu_{23}}=\hat{\mu}+\hat{\alpha_2}+\hat{\beta_3}$=20.746.
 
 **d)**
 ```{r results='hide'}
 par(mfrow=c(1,2)); plot(searchaov, 2); plot(searchaov, 1)
 shapiro.test(residuals(object = searchaov))
 ```
-First we need to check the assumption: normal distribution of the model residuals. After using QQ-plot, we can't tell whether it is normal distribution because of some outliers. So we also use Shapiro-Wilk normality test and based on the p-value(0.2817 > 0.05), we could say it probably normal distributed. Conclusion: the first assumption of normal distribution of the model residuals has been met.
+First we need to check the assumption: normal distribution of the model residuals. After creating a QQ-plot, we cannot tell whether it is normal distribution because of some outliers. So we also use the Shapiro-Wilk normality test. Based on the p-value(0.2817 > 0.05), we could say it probably normal distributed. Conclusion: the first assumption of normal distribution of the model residuals has been met.
 The fitted plot seems to indicate that the residuals and the fitted values are uncorrelated. Conclusion: the second assumption of homogeneity of variance of the groups has been met.
 
 **e)**
@@ -101,7 +101,7 @@ p-value for testing $H_{0}$ : no treatment effect is 0.04076, so $H_{0}$ is reje
 searchoneaov = lm(time ~ interface, data = search)
 anova(searchoneaov)
 ```
-It is not useful to perform this test on this dataset, because randomized block design is to make the variability within blocks is less than the variability between blocks, and this design reduces variability within treatment conditions and potential confounding, producing a better estimate of treatment effects. Since we already gather enough data, we should apply the randomized block design instead of one-way ANOVA.
+It is not useful to perform this test on this dataset, because randomized block design is to make the variability within blocks less than the variability between blocks, and this design reduces variability within treatment conditions and potential confounding, producing a better estimate of treatment effects. Since we already gathered enough data, we should apply the randomized block design instead of one-way ANOVA.
 
 ## Exercise 3
 **a)**
@@ -123,20 +123,20 @@ library(lme4); attach(cow)
 cowlmer=lmer(milk~treatment+order+per+(1|id),REML=FALSE) 
 summary(cowlmer)
 ```
-The estimated treatment and period effects under Fixed effects are identical to those in the previous `lm()`'s results. The negative feedingstuffs gives 0.5100 less milk production.
+The estimated treatment and period effects under fixed effects are identical to those in the previous `lm()`'s results. The negative feedingstuffs gives 0.5100 less milk production.
 ```{r}
 cowlmer1=lmer(milk~order+per+(1|id),REML=FALSE) 
 anova(cowlmer1,cowlmer)
 ```
-As illusstrated for treatment, there's no significicant effect.
+As illusstrated for treatment, there is no significicant effect.
 
 **c)**
 ```{r}
 attach(cow)
 t.test(milk[treatment=="A"],milk[treatment=="B"],paired=TRUE)
 ```
-No, it is not a valid test for a difference in milk production. This is because when we use t-test for seeing effects, we aussume that there's no order effect, but from previous conclusion, there does have order effect.
-Its conclusion compatible with the one obtained in a, because the result in a) is fixed effect analysis, it does not consider the order effect so does `t.test()` in this question. So the p-value for treatment is identical to the reuslt found in a). The p-value for id is not interesting.
+No, it is not a valid test for a difference in milk production. This is because when we use t-test for seeing effects, we assume that there is no order effect; but we previously concluded that there is an order effect.
+Its conclusion is compatible with the one obtained in a, because the result in a) is fixed effect analysis, it does not consider the order effect so does `t.test()` in this question. So the p-value for treatment is identical to the reuslt found in a). The p-value for id is not interesting.
 
 ## Exercise 4
 **a)**
@@ -163,12 +163,12 @@ myt = chisq.test(xtabs(~medicin+naus, data = df))[[1]]
 pr=sum(tstar>myt)/B
 pr
 ```
-The p-value for testing $H_{0}: $the different medicins work equally well against nausea is 0.031 Conclusion:  we reject $H_{0}$ and we have confidence that there is difference between different medicins.
+The p-value for testing $H_{0}: $the different medicines work equally well against nausea is 0.031. Conclusion:  we reject $H_{0}$ and we have confidence that there exists difference between the different medicines.
 **c)**
 ```{r}
 chisq.test(xtabs(~medicin+naus, data = df))[[3]]
 ```
-p-value from permutation test and chisquare test for contingency tables are very close.
+The p-value from permutation test and chi-square test for contingency tables are very close.
 
 ## Exercise 5
 **a)**
@@ -178,10 +178,10 @@ expensescrime=read.table("expensescrime.txt",header=TRUE,sep=" ");
 plot(expensescrime[,c(2,3,4,5,6,7)]);par(mfrow=c(2,3));
 for (i in c(2,3,4,5,6,7)) hist(expensescrime[,i],main=names(expensescrime)[i])
 ```
-From the histgram graphs, we can see that the `bad`, `lawyers`, `employ`, `pop` has similar shapes, so there's highly collinearity problem in linear regression.
+From the histogram graphs, we can see that the `bad`, `lawyers`, `employ`, `pop` have similar shapes, so there is a highly collinearity problem in linear regression.
 
 ### 5.a influence points 
-We will use Cook distance and draw corrponding plot chart to investigate influence points between expense data and other data, if the Cook's distance is bigger than 1, then it is considered to be an influence point.
+We will use Cook distance and draw the corrponding plot chart to investigate influence points between expense data and other data. If the Cook's distance is bigger than 1, then it is considered to be an influence point.
 ```{r}
 expenselm=lm(expend~bad+crime+lawyers+employ+pop, data=expensescrime);
 plot(1:51,cooks.distance(expenselm),type="b"); 
@@ -189,14 +189,14 @@ plot(1:51,cooks.distance(expenselm),type="b");
 ```{r results='hide'}
 cooks.distance(expenselm)
 ```
-According to model expense~bad+crime+lawyers+employ+pop, we got 4 inluence points as following:
-    * Point 5 is an influence point, it's Cook distance is 4.91 > 1.
-    * Point 8 is an influence point, it's Cook distance is 3.51 > 1.
-    * Point 35 is an influence point, it's Cook distance is 1.09 > 1.
-    * Point 44 is an influence point, it's Cook distance is 2.70 > 1.
+According to model expense~bad+crime+lawyers+employ+pop, we got 4 influence points in the following way:
+    * Point 5 is an influence point, its Cook distance is 4.91 > 1.
+    * Point 8 is an influence point, its Cook distance is 3.51 > 1.
+    * Point 35 is an influence point, its Cook distance is 1.09 > 1.
+    * Point 44 is an influence point, its Cook distance is 2.70 > 1.
     
 ### 5.a collinearity
-We will use variance inflation factor(VIF) to investigate potentail collinearity in the dataset, for the $\beta_j$ in model Y_n=$\beta_0+\beta_1X_{n1}+\beta_2X_{n2}+…+\beta_pX_{np}+e_n, n=1,2,…,N$,if the $\beta_j$'s VIF is bigger than 5, then it is considered  $\beta_j$ is unreliable.
+We will use variance inflation factor(VIF) to investigate potential collinearity in the dataset, for the $\beta_j$ in model Y_n=$\beta_0+\beta_1X_{n1}+\beta_2X_{n2}+…+\beta_pX_{np}+e_n, n=1,2,…,N$,if the $\beta_j$'s VIF is bigger than 5, then it is considered  $\beta_j$ is unreliable.
 ```{r}
 expensescrimelm=lm(expend~bad+crime+lawyers+employ+pop, data=expensescrime) 
 vif(expensescrimelm) 
@@ -216,12 +216,12 @@ vif(expensescrimelm4)
 ```{r}
 expensescrimelm5=lm(expend~crime, data=expensescrime) 
 ```
-In the 1st model to 3rd model only 1 out of 5 VIF is lower than 5, so there are collinearity problems in those model.
-The last 2 models are ok with respect to collinearity problems. 
+In the first model to third model only 1 out of 5 VIF is lower than 5, so there are collinearity problems in those models.
+The last two models are ok with respect to collinearity problems. 
 
 **b)**
-We use summary function, and its 8th output is $R^2$ determination coefficient. We don't print all the result, but p-value here is equality important.
-First we use step-up method.
+We use summary function, and its eighth output is $R^2$ determination coefficient. We do not print all the results, but the p-value here is equality important.
+First we use the step-up method.
 ```{r results='hide'}
 summary(lm(expend~bad,data=expensescrime))[[8]]
 summary(lm(expend~crime,data=expensescrime))[[8]]
@@ -231,7 +231,7 @@ summary(lm(expend~pop,data=expensescrime))[[8]]
 ```{r}
 summary(lm(expend~employ,data=expensescrime))[[8]]
 ```
-Model expend~employ has max determination coefficient: 0.954, so wo chose this model for next step.
+Model expend~employ has max determination coefficient: 0.954, so we chose this model forthe next step.
 ```{r results='hide'}
 summary(lm(expend~employ+bad,data=expensescrime))[[8]]
 summary(lm(expend~employ+crime,data=expensescrime))[[8]]
@@ -240,30 +240,30 @@ summary(lm(expend~employ+pop,data=expensescrime))[[8]]
 ```{r}
 summary(lm(expend~employ+lawyers,data=expensescrime))[[8]]
 ```
-In those four model only lawyers in expend~employ+lawyers is significant(p-value=0.00113 < 0.05), and it has determination coefficient 0.9632 larger than 0.954, so wo chose this model for next step.
+In those four model only 'lawyers' in expend~employ+lawyers is significant(p-value=0.00113 < 0.05), and it has determination coefficient 0.9632 larger than 0.954, so wo chose this model for the next step.
 ```{r results='hide'}
 summary(lm(expend~employ+lawyers+bad,data=expensescrime))[[8]]
 summary(lm(expend~employ+lawyers+crime,data=expensescrime))[[8]]
 summary(lm(expend~employ+lawyers+pop,data=expensescrime))[[8]]
 ```
-All of those newly added feature yields insignificant explanatory variables, so we can stop and take model expend~employ+lawyers as our final step-up model.
-Then we use step-up method.
+All of these newly added features yield insignificant explanatory variables, so we can stop and take model expend~employ+lawyers as our final step-up model.
+Then we use the step-up method.
 ```{r results='hide'}
 summary(lm(expend~bad+crime+lawyers+employ+pop,data=expensescrime))
 ```
-Feature crime has the largest p-vlaue 0.25534, and it is large than 0.05, so we remove crime from the model.
+Feature crime has the largest p-value 0.25534, and it is larger than 0.05, so we remove crime from the model.
 ```{r results='hide'}
 summary(lm(expend~bad+lawyers+employ+pop,data=expensescrime))
 ```
-Feature pop has the largest p-vlaue 0.06012, and it is large than 0.05, so we remove pop from the model.
+Feature pop has the largest p-value 0.06012, and it is larger than 0.05, so we remove pop from the model.
 ```{r results='hide'}
 summary(lm(expend~bad+lawyers+employ,data=expensescrime))
 ```
-Feature bad has the largest p-vlaue 0.34496, and it is large than 0.05, so we remove bad from the model.
+Feature bad has the largest p-value 0.34496, and it is larger than 0.05, so we remove bad from the model.
 ```{r results='hide'}
 summary(lm(expend~lawyers+employ,data=expensescrime))
 ```
-All remaining explanatory variables in the model are significant, so we can stop and take model expend~employ+lawyers as our final step-up model.Both method generate same model: expend~employ+lawyers.
+All remaining explanatory variables in the model are significant, so we can stop and take model expend~employ+lawyers as our final step-up model. Both methods generate the same model: expend~employ+lawyers.
 
 **c)**
 (1)Scatter plot: plot residuals against each X_k  in the model separately
@@ -271,7 +271,7 @@ All remaining explanatory variables in the model are significant, so we can stop
 attach(expensescrime); expendlm=lm(expend~lawyers+employ)
 par(mfrow=c(1,2)); plot(residuals(expendlm),lawyers); plot(residuals(expendlm),employ) 
 ```
-There are V curve show in two charts, include $lawyers^2$ and $employ^2$
+There are V curve shown in the two charts, include $lawyers^2$ and $employ^2$
 ```{r warning=FALSE}
 expensescrime$lawyers2=expensescrime$lawyers^2
 expensescrime$employ2=expensescrime$employ^2
@@ -279,7 +279,7 @@ expendlm2=lm(expend~expend+lawyers+lawyers2+employ+employ2,data=expensescrime)
 par(mfrow=c(1,2)); plot(residuals(expendlm2),lawyers); plot(residuals(expendlm2),employ) 
 summary(expendlm2)
 ```
-There's no specific curved pattern is visible, good!
+There is no specific curved pattern is visible, good!
 
 (2)Plot residuals of X_j  against residuals of Y with omitted X_j 
 ```{r}
