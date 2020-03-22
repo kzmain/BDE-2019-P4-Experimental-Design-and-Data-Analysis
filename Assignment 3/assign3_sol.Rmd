@@ -1,0 +1,72 @@
+---
+title: "Assignment 3"
+author: "Kai Zhang, Sherida van den Bent, Chang Liu"
+date: "2020/03/13"
+output: pdf_document
+---
+```{r echo=FALSE,,message=FALSE}
+set.seed(1234)
+```
+## Exercise 1
+**a)**
+```{r}
+fruitflies = read.table('fruitflies.txt', header=TRUE)
+fruitflies$loglongevity = log(fruitflies$longevity)
+plot(loglongevity~thorax,pch=unclass(activity), data=fruitflies)
+for (i in c('high', 'low', 'isolated')) abline(lm(loglongevity~thorax,data=fruitflies[fruitflies$activity==i,]))
+
+par(mfrow=c(1,2))
+boxplot(loglongevity~activity, data=fruitflies); boxplot(loglongevity~thorax, data=fruitflies)
+fruitfliesaov = lm(loglongevity~activity, data=fruitflies)
+anova(fruitfliesaov); summary(fruitfliesaov)
+plot(fruitfliesaov, 2); plot(fruitfliesaov, 1)
+shapiro.test(residuals(object = fruitfliesaov))
+```
+From the first plot we can see that loglongevity clearly increases with thorax. Its dependence on activity is not so clear. From the two box plots, it is clear that both activity and thorax have effect on loglongevity.
+Then we use ANOVA to test $H_{0}:\mu_{high}=\mu_{isolated}=\mu_{low}$. p-value = 1.798e-07 < 0.05. Conclusion we reject null hypothesis and sexual activity do influences longevity.
+From the summary, we get $\hat{\mu}=3.60212$, $\hat{\alpha}_{isolated}=0.51722$, $\hat{\alpha}_{low}=0.39771$. So estimated loglongevities for high is 3.60212, for isolated is 3.60212+0.51722=4.11934 and for low is 3.60212+0.39771=3.99983. And estimated longevities for high is 36.67591, for isolated is 61.51863 and for low is 3.60212+0.39771=54.58887.
+We check the assumption of ANOVA and found Normal QQ-plot looks like has a curve, and Shapiro-Wilk normality test gives p-vlaue=0.008652, it means the conclusion is not reliable.
+
+**b)**
+```{r}
+fruitfliesaov = lm(loglongevity~thorax+activity, data=fruitflies)
+anova(fruitfliesaov); summary(fruitfliesaov)
+par(mfrow=c(1,2))
+plot(fruitfliesaov, 2); plot(fruitfliesaov, 1)
+mean(fruitflies$thorax)
+shapiro.test(residuals(object = fruitfliesaov))
+```
+We use ANCOVA to test $H_{0}:\mu_{high}=\mu_{isolated}=\mu_{low}$. p-value = 4e-09 < 0.05. Conclusion we reject null hypothesis and sexual activity do influences longevity.
+From the summary, we get $\hat{\mu}=1.21893$, $\hat{\alpha}_{isolated}=0.40998$, $\hat{\alpha}_{low}=0.28570$. So sexual activity decrease longevity
+We check the assumption of ANOVA and found Normal QQ-plot looks like has a curve, it means the conclusion is not reliable.
+The model is $\hat{Y_{i}}=\hat{\mu}+\hat{\alpha_{i}}+\hat{\beta} X_{i}$.
+The average thorax length is 0.8245333. 
+The estimated loglongevity for a fly with average thorax length in isolated: $\hat{Y_{isolated}}=1.21893+0.40998+2.97899*0.8245333=4.08518645537$. 
+For low:$\hat{Y_{low}}=1.21893+0.28570+2.97899*0.8245333=3.96090645537$.
+For High:$\hat{Y_{high}}=1.21893+0+2.97899*0.8245333=3.67520645537$.
+So longevity for isolated is $e^{Y_{isolated}} = e^{4.09}=59.45$.
+Longevity for low is $e^{Y_{low}} = e^{3.96}=52.50$.
+Longevity for high is $e^{Y_{high}} = e^{3.68}=39.46$.
+We check the assumption of ANCOVA. After creating a QQ-plot, we cannot tell whether it is a normal distribution because of some outliers. Therefore we also use the Shapiro-Wilk normality test. Based on the p-value(0.05748 > 0.05), we could say that it is probably normally distributed. So the first assumption of normal distribution of the model residuals has been met. The fitted plot seems to indicate that the residuals and the fitted values are uncorrelated. We can rely on the ANCOVA test.
+
+**c)**
+```{r}
+fruitfliesaov = lm(loglongevity~activity*thorax, data=fruitflies)
+summary(fruitfliesaov)
+```
+From the plot in a), it is clear that the three lines would be parallel. P-value for $H_0:\mu_{isolated}=\mu_{high}$ and $H_0:\mu_{low}=\mu_{high}$ are 0.0545 and 0.2771. So we do not reject $H_0$. Conclusion: this dependence is similar under all three conditions of sexual activity.
+
+**d)**
+I prefer the one with thorax length. Because the one without thorax length doesn't fit assumption of ANOVA. 
+
+**e)**
+From the plot from b), we can say the assumption of normal distribution of the model residuals and homogeneity of variance of the groups has been met.
+
+**f)**
+```{r}
+fruitfliesaov = lm(longevity~thorax+activity, data=fruitflies)
+anova(fruitfliesaov); summary(fruitfliesaov)
+par(mfrow=c(1,2))
+plot(fruitfliesaov, 2); plot(fruitfliesaov, 1)
+```
+From the fitted plot, we can see a certain pattern in residuals fitted plot. So the model with longevity instead of loglongevity is not reliable.
