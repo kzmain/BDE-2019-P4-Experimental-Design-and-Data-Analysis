@@ -152,3 +152,115 @@ disadvantage: Needs lots of data to function properly
 Fisher test:
 advantage: Very easy to add extra testcases without getting too big of a table
 disadvantage: Doesn't take gpa into account
+
+#3 Read in data
+```{r}
+africa=read.table("africa.txt",header=TRUE);attach(africa)
+africa
+```
+## 3.a)
+```{r}
+par(mfrow=c(3,3));
+for (i in c(2,3,4,5,6,7,8,9)) hist(africa[,i],main=names(africa)[i])
+plot(africa);
+```
+From the hist chart and the plot chart we can see that it also has collinearity problem amongst explanatory variables.
+```{r}
+africa_glm = glm(miltcoup~oligarchy+pollib+parties+pctvote+popn+size+numelec+numregim,family = poisson)
+summary(africa_glm)
+```
+```{r}
+confint(africa_glm)
+```
+```{r}
+coef(africa_glm)
+```
+The Poisson-regression's result is: $\log(\lambda)=0.46070 + 0.1325623720oligarchy + -1.2275514078pollib+0.0627986634parties$
+## 3b)
+```{r}
+africa_glm = glm(miltcoup~oligarchy+pollib+parties+pctvote+popn+size+numelec+numregim,family = poisson)
+summary(africa_glm)
+```
+|           |Estimate Std. |Error      |z value |Pr(>|z|)  |        |
+|-----------|--------------|-----------|--------|----------|--------|   
+|(Intercept)|-0.5102693    |0.9053301  |-0.564  |0.57301   |        |
+|oligarchy  | 0.0730814    |0.0345958  | 2.112  |0.03465 * |        |
+|pollib     |-0.7129779    |0.2725635  |-2.616  |0.00890 **|        |
+|parties    | 0.0307739    |0.0111873  | 2.751  |0.00595 **|        |
+|pctvote    | 0.0138722    |0.0097526  | 1.422  |0.15491   |        |
+|popn       | 0.0093429    |0.0065950  | 1.417  |0.15658   |        |
+|size       |-0.0001900    |0.0002485  |-0.765  |0.44447   |        |
+|numelec    |-0.0160783    |0.0654842  |-0.246  |0.80605   |=>remove|
+|numregim   | 0.1917349    |0.2292890  | 0.836  |0.40303   |        |
+```{r}
+africa_glm = glm(miltcoup~oligarchy+pollib+parties+pctvote+popn+size+numregim,family = poisson)
+summary(africa_glm)
+```
+|           |Estimate Std. |Error      |z value |Pr(>|z|)  |        |
+|-----------|--------------|-----------|--------|----------|--------|   
+|(Intercept)|-0.6078028    |0.8239267  |-0.738  |0.46070   |        |
+|oligarchy  | 0.0781368    |0.0277656  | 2.814  |0.00489 **|        |
+|pollib     |-0.6773897    |0.2290130  |-2.958  |0.00310 **|        |
+|parties    | 0.0296786    |0.0102888  | 2.885  |0.00392 **|        |
+|pctvote    | 0.0131290    |0.0092895  | 1.413  |0.15756   |        |
+|popn       | 0.0089313    |0.0063746  | 1.401  |0.16120   |        |
+|size       |-0.0002021    |0.0002436  |-0.830  |0.40682   |        |
+|numregim   | 0.1758198    |0.2210498  | 0.795  |0.42639   |=>remove|
+```{r}
+africa_glm = glm(miltcoup~oligarchy+pollib+parties+pctvote+popn+size,family = poisson);summary(africa_glm)
+```
+|           |Estimate Std. |Error      |z value |Pr(>|z|)    |        |
+|-----------|--------------|-----------|--------|------------|--------|
+|(Intercept)|-0.1126871    |0.5163030  |-0.218  |0.827228    |        |
+|oligarchy  | 0.0859620    |0.0259100  | 3.318  |0.000908 ***|        |
+|pollib     |-0.6894029    |0.2278572  |-3.026  |0.002481 ** |        |
+|parties    | 0.0291944    |0.0101954  | 2.863  |0.004190 ** |        |
+|pctvote    | 0.0141588    |0.0091980  | 1.539  |0.123723    |        |
+|popn       | 0.0062736    |0.0053994  | 1.162  |0.245272    |        |
+|size       |-0.0001950    |0.0002425  |-0.804  |0.421378    |=>remove|
+```{r}
+africa_glm = glm(miltcoup~oligarchy+pollib+parties+pctvote+popn,family = poisson);summary(africa_glm)
+```
+|           |Estimate Std. |Error      |z value |Pr(>|z|)    |        |
+|-----------|--------------|-----------|--------|------------|--------|
+|(Intercept)|-0.244466     |0.495708   |-0.493  |0.62190     |        |
+|oligarchy  | 0.083168     |0.025437   | 3.270  |0.00108 **  |        |
+|pollib     |-0.652830     |0.221234   |-2.951  |0.00317 **  |        |
+|parties    | 0.029800     |0.010294   | 2.895  |0.00379 **  |        |
+|pctvote    | 0.013842     |0.009282   | 1.491  |0.13591     |        |
+|popn       | 0.005587     |0.005378   | 1.039  |0.29883     |=>remove|
+```{r}
+africa_glm = glm(miltcoup~oligarchy+pollib+parties+pctvote,family = poisson);summary(africa_glm)
+```
+|           |Estimate Std. |Error      |z value |Pr(>|z|)    |        |
+|-----------|--------------|-----------|--------|------------|--------| 
+|(Intercept)|-0.093657     |0.463279   |-0.202  | 0.83979    |        |
+|oligarchy  | 0.095358     |0.022421   | 4.253  |2.11e-05 ***|        |
+|pollib     |-0.666615     |0.217564   |-3.064  | 0.00218 ** |        |
+|parties    | 0.025630     |0.009502   | 2.697  | 0.00699 ** |        |
+|pctvote    | 0.012134     |0.009056   | 1.340  | 0.18031    |=>remove| 
+```{r}
+africa_glm = glm(miltcoup~oligarchy+pollib+parties,family = poisson);summary(africa_glm)
+```
+|           |Estimate Std. |Error      |z value |Pr(>|z|)    |        |
+|-----------|--------------|-----------|--------|------------|--------|   
+|(Intercept)|  0.251377    |0.372689   | 0.674  | 0.50000    |        |
+|oligarchy  |  0.092622    |0.021779   | 4.253  |2.11e-05 ***|        |
+|pollib     | -0.574103    |0.204383   |-2.809  | 0.00497 ** |        |
+|parties    |  0.022059    |0.008955   | 2.463  | 0.01377 *  |        |
+Finished! Nothing to remove!
+```{r}
+confint(africa_glm);
+```
+```{r}
+plot(log(fitted(africa_glm)),residuals(africa_glm))
+```
+This plot seems ok, there's not specific structure inside.
+```{r}
+plot(log(fitted(africa_glm)),residuals(africa_glm,type="response"))
+```
+The response residuals clearly increase with the (logarithm) of the fitted values, as expected under a Poisson model.
+```{r}
+coef(africa_glm)
+```
+So the final result is: $\log(\lambda) = 0.25137715+0.09262231oligarchy-0.57410330pollib+0.02205864parties$
