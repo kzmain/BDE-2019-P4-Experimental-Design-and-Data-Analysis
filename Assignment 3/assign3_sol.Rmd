@@ -1,7 +1,7 @@
 ---
 title: "Assignment 3"
 author: "Kai Zhang, Sherida van den Bent, Chang Liu"
-date: "2020/03/13"
+date: "2020/03/22"
 output: pdf_document
 ---
 ```{r echo=FALSE,,message=FALSE}
@@ -70,3 +70,85 @@ par(mfrow=c(1,2))
 plot(fruitfliesaov, 2); plot(fruitfliesaov, 1)
 ```
 From the fitted plot, we can see a certain pattern in residuals fitted plot. So the model with longevity instead of loglongevity is not reliable.
+
+## Exercise 2
+```{r}
+require(ggplot2)
+require(plyr)
+require(dplyr)
+require(aod)
+par(mfrow = c(1, 1))
+```
+**a)**
+```{r}
+grades = read.table('psi.txt')
+head(grades)
+```
+The table psi consists of three columns; the boolean 'passed' signifying if the student passed the assignment or not, the boolean 'psi' signifying if the student was taught by the regular method (0) or if the student was taught by the new psi method (1). The third column is gpa, signifying the average grade of the student on a 4-point scale.
+
+```{r}
+summary(grades)
+```
+Above you will find the complete summary in a table.
+
+The barplots below can already give us an inkling how well the psi method performed relatively to the regular teaching method. This barplot shows the frequency of passes and fails from the students getting regular teaching methods vs psi teaching methods.
+
+```{r}
+all_psi = subset(grades, psi == 1)
+all_reg = subset(grades, psi == 0)
+par(mfrow = c(1, 2))
+barplot(table(all_reg$passed),main='Regular',names.arg=c('fail','pass'))
+barplot(table(all_psi$passed),main='Psi',names.arg=c('fail','pass'))
+```
+
+
+**b)**
+```{r}
+sapply(grades, sd)
+xtabs(~passed + psi, data = grades)
+
+grades$psi <- factor(grades$psi)
+mylogit <- glm(passed ~ gpa + psi, data = grades, family = "binomial")
+summary(mylogit)
+```
+
+Psi works; the coefficient of psi1 is statistically significant, and changes the log chances of passing by 2.338. This is quite a lot; PSI is a lot better than the regular teaching methods.
+
+**c)**
+```{r}
+testdata <- with(grades, data.frame(gpa = 3, psi = factor(0:1)))
+testdata$passed <- predict(mylogit, newdata = testdata, type = "response")
+testdata
+```
+
+The predicted probability of a student with a gpa of 3, and getting the psi teaching method is 0.48158645, and the same student getting the regular teaching method has a passing probability of 0.08230274.
+
+**d)**
+
+As said in question b, psi changes the log chances of passing by 2.338. This is irrellevant of gpa score.
+
+**e)**
+```{r}
+x=matrix(c(3,15,8,6),2,2)
+x
+```
+
+The numbers 15 and 6 represent the students that did not show any improvement. 15 is the number of kids without psi that didn't show any improvement, and 6 is the number of kids with psi that didn't show any improvement.
+
+```{r}
+fisher.test(x)
+```
+The p-value is 0.0265; this is lower than 0.05, so H0 is rejected. This means that p1 != p1; the odds of improvement by using psi and by using the regular teaching methods are not equal.
+
+# F
+Yes, the second aproach is wrong. It doesn't take the gpa of the students into account (it isn't even in the data) so the outcome could be greatly skewed by the gpa of the students.
+
+# G
+
+Logistic regression:
+advantage: Can predict new outcomes based on new data
+disadvantage: Needs lots of data to function properly
+  
+Fisher test:
+advantage: Very easy to add extra testcases without getting too big of a table
+disadvantage: Doesn't take gpa into account
